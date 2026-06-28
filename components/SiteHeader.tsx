@@ -27,7 +27,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <img
-            src="/logo.png"
+            src="/NJU-YZTer/logo.png"
             alt="校徽"
             width={28}
             height={28}
