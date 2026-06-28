@@ -7,6 +7,7 @@ import {
   SCHOOLS_BY_PROVINCE,
   provinceColor,
   schoolColor,
+  schoolColorLight,
 } from "@/lib/schools";
 
 export interface FilterState {
@@ -62,7 +63,7 @@ export function FilterChips({
       <span className="ml-3 text-muted-foreground">学校:</span>
       {schools.map((s) => {
         const active = value.schoolIds.includes(s.id);
-        const c = schoolColor(s.name);
+        const c = active ? schoolColor(s.name) : schoolColorLight(s.name);
         return (
           <button
             key={s.id}

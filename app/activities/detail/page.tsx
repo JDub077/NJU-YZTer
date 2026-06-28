@@ -21,7 +21,7 @@ import { fetchActivityById, fetchProposals, logAudit } from "@/lib/data";
 import { getActor } from "@/lib/actor";
 import { getSupabase } from "@/lib/supabase";
 import { fmtDate, fmtDateTime } from "@/lib/format";
-import { schoolColor } from "@/lib/schools";
+import { schoolColor, schoolColorLight } from "@/lib/schools";
 import { cn } from "@/lib/utils";
 import type { ActivityView, Proposal } from "@/lib/types";
 import { isSupabaseConfigured } from "@/lib/supabase";
@@ -146,7 +146,7 @@ function ActivityDetailInner() {
     );
   }
 
-  const c = schoolColor(activity.primary_school.name);
+  const c = schoolColorLight(activity.primary_school.name);
 
   return (
     <div className="mx-auto max-w-4xl space-y-4 px-4 py-6">
@@ -210,7 +210,7 @@ function ActivityDetailInner() {
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <span className="text-muted-foreground">协同学校:</span>
               {activity.collaborators.map((cs) => {
-                const cc = schoolColor(cs.name);
+                const cc = schoolColorLight(cs.name);
                 return (
                   <span
                     key={cs.id}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { schoolColor } from "@/lib/schools";
+import { schoolColor, schoolColorLight } from "@/lib/schools";
 import { fmtDateTime, fmtRelative } from "@/lib/format";
 import { isActivityComplete } from "@/lib/status";
 import { ArticleBadge, ApprovalBadge, ProposalBadge } from "./StatusBadge";
@@ -18,7 +18,7 @@ export function ActivityCard({
   className?: string;
   showDate?: boolean;
 }) {
-  const c = schoolColor(activity.primary_school.name);
+  const c = schoolColorLight(activity.primary_school.name);
   const complete = isActivityComplete(
     activity.status_proposal,
     activity.status_approved,
