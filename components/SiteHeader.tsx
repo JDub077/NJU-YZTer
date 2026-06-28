@@ -26,9 +26,13 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            团
-          </span>
+          <img
+            src="/logo.png"
+            alt="校徽"
+            width={28}
+            height={28}
+            className="h-7 w-7 rounded-md object-contain"
+          />
           <span className="hidden text-sm sm:inline">南大研支团 · 协同平台</span>
           <span className="sm:hidden">协同平台</span>
         </Link>
