@@ -18,7 +18,7 @@ const EVENT_STYLES: Record<string, { bg: string; border: string }> = {
   "隆德二中":         { bg: "#f59e0b", border: "#b45309" }, // amber-500/700
   "泾源高中":         { bg: "#f97316", border: "#c2410c" }, // orange-500/700
   "红湖中学":         { bg: "#10b981", border: "#047857" }, // emerald-500/700
-  "平坝一中":         { bg: "#06b6d4", border: "#0e7490" }, // cyan-500/700
+  "平坝一中":         { bg: "#6366f1", border: "#4338ca" }, // indigo-500/700
   "官渡口镇初级中学": { bg: "#0ea5e9", border: "#0369a1" }, // sky-500/700
 };
 const EVENT_STYLE_FALLBACK = { bg: "#6b7280", border: "#374151" }; // gray-500/700

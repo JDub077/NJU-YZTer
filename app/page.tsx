@@ -21,7 +21,39 @@ import {
 import { EmptyState } from "@/components/EmptyState";
 import { fetchActivities, fetchSchools } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/supabase";
+import { isActivityComplete } from "@/lib/status";
+import { cn } from "@/lib/utils";
 import type { Activity, ActivityView, School } from "@/lib/types";
+
+type StageFilter = "all" | "pending" | "in_progress" | "complete";
+
+const STAGE_OPTIONS: { value: StageFilter; label: string; tone: string }[] = [
+  { value: "all",         label: "全部",     tone: "bg-secondary text-secondary-foreground border-transparent" },
+  { value: "pending",     label: "未开始",   tone: "bg-gray-50 text-gray-700 border-gray-200" },
+  { value: "in_progress", label: "进行中",   tone: "bg-blue-50 text-blue-700 border-blue-200" },
+  { value: "complete",    label: "已完成",   tone: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+];
+
+function matchesStage(a: ActivityView, stage: StageFilter): boolean {
+  if (stage === "all") return true;
+  const done = isActivityComplete(a.status_proposal, a.status_approved, a.status_article);
+  if (stage === "complete") return done;
+  if (stage === "pending") {
+    return (
+      a.status_proposal === "not_started" &&
+      a.status_approved === "pending" &&
+      a.status_article === "not_started"
+    );
+  }
+  // in_progress: 已经开始但未全部完成
+  return !done && !matchesStage(a, "pending");
+}
+
+function sortByStartAsc(arr: ActivityView[]): ActivityView[] {
+  return [...arr].sort(
+    (a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime()
+  );
+}
 
 export default function HomePage() {
   const [schools, setSchools] = React.useState<School[]>([]);
@@ -32,6 +64,7 @@ export default function HomePage() {
     provinces: [],
     schoolIds: [],
   });
+  const [stage, setStage] = React.useState<StageFilter>("all");
 
   React.useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -82,13 +115,18 @@ export default function HomePage() {
   }, [activities, schools]);
 
   const views = React.useMemo(
-    () => applyFilter(viewsAll, schools, filter),
-    [viewsAll, schools, filter]
+    () =>
+      applyFilter(viewsAll, schools, filter).filter((a) =>
+        matchesStage(a, stage)
+      ),
+    [viewsAll, schools, filter, stage]
   );
+
+  const list = React.useMemo(() => sortByStartAsc(views), [views]);
 
   const upcoming = React.useMemo(() => {
     const now = Date.now();
-    return views
+    return sortByStartAsc(views)
       .filter((a) => new Date(a.starts_at).getTime() >= now - 7 * 86400_000)
       .slice(0, 8);
   }, [views]);
@@ -119,6 +157,27 @@ export default function HomePage() {
             value={filter}
             onChange={setFilter}
           />
+          <div className="flex flex-wrap items-center gap-2 border-t pt-3 text-sm">
+            <span className="text-muted-foreground">阶段:</span>
+            {STAGE_OPTIONS.map((opt) => {
+              const active = stage === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setStage(opt.value)}
+                  className={cn(
+                    "rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
+                    active
+                      ? opt.tone
+                      : "bg-background text-muted-foreground hover:bg-accent"
+                  )}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
         </CardContent>
       </Card>
 
@@ -162,11 +221,11 @@ export default function HomePage() {
             )}
           </TabsContent>
           <TabsContent value="list">
-            {views.length === 0 ? (
+            {list.length === 0 ? (
               <EmptyState title="暂无活动" />
             ) : (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {views.map((a) => (
+                {list.map((a) => (
                   <ActivityCard key={a.id} activity={a} />
                 ))}
               </div>

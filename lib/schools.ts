@@ -18,7 +18,7 @@ export const SCHOOL_COLORS: Record<string, { bg: string; border: string; text: s
   "隆德二中":         { bg: "bg-amber-500",    border: "border-amber-700",    text: "text-white" },
   "泾源高中":         { bg: "bg-orange-500",   border: "border-orange-700",   text: "text-white" },
   "红湖中学":         { bg: "bg-emerald-500",  border: "border-emerald-700",  text: "text-white" },
-  "平坝一中":         { bg: "bg-cyan-500",     border: "border-cyan-700",     text: "text-white" },
+  "平坝一中":         { bg: "bg-indigo-500",   border: "border-indigo-700",   text: "text-white" },
   "官渡口镇初级中学": { bg: "bg-sky-500",      border: "border-sky-700",      text: "text-white" },
 };
 
@@ -29,7 +29,7 @@ export const SCHOOL_COLORS_LIGHT: Record<string, { bg: string; border: string; t
   "隆德二中":         { bg: "bg-amber-100",    border: "border-amber-300",    text: "text-amber-900" },
   "泾源高中":         { bg: "bg-orange-100",   border: "border-orange-300",   text: "text-orange-900" },
   "红湖中学":         { bg: "bg-emerald-100",  border: "border-emerald-300",  text: "text-emerald-900" },
-  "平坝一中":         { bg: "bg-cyan-100",     border: "border-cyan-300",     text: "text-cyan-900" },
+  "平坝一中":         { bg: "bg-indigo-100",   border: "border-indigo-300",   text: "text-indigo-900" },
   "官渡口镇初级中学": { bg: "bg-sky-100",      border: "border-sky-300",      text: "text-sky-900" },
 };
 
