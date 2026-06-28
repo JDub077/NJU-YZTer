@@ -6,9 +6,21 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { zhCN } from "date-fns/locale/zh-CN";
 import { useRouter } from "next/navigation";
-import { schoolColor } from "@/lib/schools";
 import { isAllDay } from "@/lib/format";
 import type { ActivityView } from "@/lib/types";
+
+// ⚠️ Tailwind v4 只扫描源代码中的字面量字符串,模板拼接看不到。
+// 这里必须显式列出每个学校完整的 className 字符串,否则日历事件不会着色。
+const EVENT_CLASSES: Record<string, string> = {
+  "双柏一中":         "bg-rose-500 border-rose-700 text-white",
+  "妥甸中学":         "bg-violet-500 border-violet-700 text-white",
+  "隆德二中":         "bg-amber-500 border-amber-700 text-white",
+  "泾源高中":         "bg-orange-500 border-orange-700 text-white",
+  "红湖中学":         "bg-emerald-500 border-emerald-700 text-white",
+  "平坝一中":         "bg-cyan-500 border-cyan-700 text-white",
+  "官渡口镇初级中学": "bg-sky-500 border-sky-700 text-white",
+};
+const EVENT_CLASS_FALLBACK = "bg-gray-500 border-gray-700 text-white";
 
 // react-big-calendar 访问 window,必须只在客户端运行
 const RBCalendar = dynamic(
@@ -79,8 +91,9 @@ export function Calendar({
   const events = React.useMemo(() => buildEvents(activities), [activities]);
 
   function eventPropGetter(event: CalendarEvent) {
-    const c = schoolColor(event.resource.primary_school.name);
-    return { className: `${c.bg} ${c.text} ${c.border} border-l-4` };
+    const base =
+      EVENT_CLASSES[event.resource.primary_school.name] ?? EVENT_CLASS_FALLBACK;
+    return { className: `${base} border-l-4` };
   }
 
   if (!localizer) {
