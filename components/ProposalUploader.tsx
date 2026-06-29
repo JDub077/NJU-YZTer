@@ -60,8 +60,15 @@ export function ProposalUploader({
     let path = "";
     try {
       const version = await nextProposalVersion(activityId);
-      const safeName = file.name.replace(/[^\w.\-一-龥]+/g, "_");
-      path = `proposals/${activityId}/v${version}_${Date.now()}_${safeName}`;
+      // Supabase Storage 不接受中文等非 ASCII 字符在 object key 中(InvalidKey 400)。
+      // 用 timestamp + 随机串 + 保留 ASCII 扩展名。原始文件名存 proposals.file_name 用于显示。
+      const m = file.name.match(/\.([^.]+)$/);
+      const rawExt = m ? m[1].toLowerCase() : "";
+      const ext = rawExt.replace(/[^a-z0-9]/g, "").slice(0, 8);
+      const safeName = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}${
+        ext ? "." + ext : ""
+      }`;
+      path = `proposals/${activityId}/v${version}_${safeName}`;
 
       const sb = getSupabase();
       const { error: upErr } = await sb.storage
