@@ -7,21 +7,13 @@ import { format, parse, startOfWeek, getDay } from "date-fns";
 import { zhCN } from "date-fns/locale/zh-CN";
 import { useRouter } from "next/navigation";
 import { isAllDay } from "@/lib/format";
+import { schoolBgStyle } from "@/lib/schools";
 import type { ActivityView } from "@/lib/types";
 
 // ⚠️ react-big-calendar 默认 .rbc-event 不设 background,但它的样式表加载
 // 顺序可能让 Tailwind 的 className 被覆盖。用 inline style 直接给 hex 色,
-// 优先级最高,绝不失效。降饱和方案:300 系背景 + 400 系 border。
-const EVENT_STYLES: Record<string, { bg: string; border: string }> = {
-  "双柏一中":         { bg: "#fda4af", border: "#fb7185" }, // rose-300/400
-  "妥甸中学":         { bg: "#c4b5fd", border: "#a78bfa" }, // violet-300/400
-  "隆德二中":         { bg: "#fcd34d", border: "#fbbf24" }, // amber-300/400
-  "泾源高中":         { bg: "#fdba74", border: "#fb923c" }, // orange-300/400
-  "红湖中学":         { bg: "#6ee7b7", border: "#34d399" }, // emerald-300/400
-  "平坝一中":         { bg: "#a5b4fc", border: "#818cf8" }, // indigo-300/400
-  "官渡口镇初级中学": { bg: "#7dd3fc", border: "#38bdf8" }, // sky-300/400
-};
-const EVENT_STYLE_FALLBACK = { bg: "#d1d5db", border: "#9ca3af" }; // gray-300/400
+// 优先级最高,绝不失效。颜色由 lib/schools.SCHOOL_HEX 统一管理。
+const EVENT_STYLE_FALLBACK = { bg: "#9ca3af", border: "#6b7280", color: "#ffffff" };
 
 // react-big-calendar 访问 window,必须只在客户端运行
 const RBCalendar = dynamic(
@@ -93,15 +85,15 @@ export function Calendar({
 
   function eventPropGetter(event: CalendarEvent) {
     const c =
-      EVENT_STYLES[event.resource.primary_school.name] ?? EVENT_STYLE_FALLBACK;
+      schoolBgStyle(event.resource.primary_school.name);
     return {
       style: {
-        backgroundColor: c.bg,
-        borderColor: c.border,
-        color: "#1f2937", // gray-800:深字保证可读性
+        backgroundColor: c.backgroundColor,
+        color: c.color,
         borderLeftWidth: "4px",
         borderLeftStyle: "solid",
-        borderRadius: "4px",
+        borderLeftColor: "rgba(0,0,0,0.18)",
+        borderRadius: "6px",
       },
     };
   }
