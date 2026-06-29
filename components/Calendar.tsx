@@ -11,17 +11,17 @@ import type { ActivityView } from "@/lib/types";
 
 // ⚠️ react-big-calendar 默认 .rbc-event 不设 background,但它的样式表加载
 // 顺序可能让 Tailwind 的 className 被覆盖。用 inline style 直接给 hex 色,
-// 优先级最高,绝不失效。
+// 优先级最高,绝不失效。降饱和方案:300 系背景 + 400 系 border。
 const EVENT_STYLES: Record<string, { bg: string; border: string }> = {
-  "双柏一中":         { bg: "#f43f5e", border: "#be123c" }, // rose-500/700
-  "妥甸中学":         { bg: "#8b5cf6", border: "#6d28d9" }, // violet-500/700
-  "隆德二中":         { bg: "#f59e0b", border: "#b45309" }, // amber-500/700
-  "泾源高中":         { bg: "#f97316", border: "#c2410c" }, // orange-500/700
-  "红湖中学":         { bg: "#10b981", border: "#047857" }, // emerald-500/700
-  "平坝一中":         { bg: "#6366f1", border: "#4338ca" }, // indigo-500/700
-  "官渡口镇初级中学": { bg: "#0ea5e9", border: "#0369a1" }, // sky-500/700
+  "双柏一中":         { bg: "#fda4af", border: "#fb7185" }, // rose-300/400
+  "妥甸中学":         { bg: "#c4b5fd", border: "#a78bfa" }, // violet-300/400
+  "隆德二中":         { bg: "#fcd34d", border: "#fbbf24" }, // amber-300/400
+  "泾源高中":         { bg: "#fdba74", border: "#fb923c" }, // orange-300/400
+  "红湖中学":         { bg: "#6ee7b7", border: "#34d399" }, // emerald-300/400
+  "平坝一中":         { bg: "#a5b4fc", border: "#818cf8" }, // indigo-300/400
+  "官渡口镇初级中学": { bg: "#7dd3fc", border: "#38bdf8" }, // sky-300/400
 };
-const EVENT_STYLE_FALLBACK = { bg: "#6b7280", border: "#374151" }; // gray-500/700
+const EVENT_STYLE_FALLBACK = { bg: "#d1d5db", border: "#9ca3af" }; // gray-300/400
 
 // react-big-calendar 访问 window,必须只在客户端运行
 const RBCalendar = dynamic(
@@ -98,9 +98,10 @@ export function Calendar({
       style: {
         backgroundColor: c.bg,
         borderColor: c.border,
-        color: "#ffffff",
+        color: "#1f2937", // gray-800:深字保证可读性
         borderLeftWidth: "4px",
         borderLeftStyle: "solid",
+        borderRadius: "4px",
       },
     };
   }

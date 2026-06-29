@@ -57,10 +57,11 @@ export function ProposalUploader({
       return;
     }
     setUploading(true);
+    let path = "";
     try {
       const version = await nextProposalVersion(activityId);
       const safeName = file.name.replace(/[^\w.\-一-龥]+/g, "_");
-      const path = `proposals/${activityId}/v${version}_${Date.now()}_${safeName}`;
+      path = `proposals/${activityId}/v${version}_${Date.now()}_${safeName}`;
 
       const sb = getSupabase();
       const { error: upErr } = await sb.storage
@@ -101,8 +102,32 @@ export function ProposalUploader({
       if (inputRef.current) inputRef.current.value = "";
       await refreshList();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      toast.error("上传失败:" + msg);
+      const raw = err instanceof Error ? err.message : String(err);
+      // 详细诊断日志,帮用户排查 CORS / 鉴权 / 网络问题
+      console.error("[ProposalUploader] 上传失败", {
+        activityId,
+        fileName: file?.name,
+        fileSize: file?.size,
+        fileType: file?.type,
+        path,
+        error: err,
+        // 常见原因提示
+        hints: [
+          raw.includes("Failed to fetch") || raw.includes("NetworkError")
+            ? "网络/CORS:浏览器无法访问 Supabase Storage,请检查 Storage → CORS 配置"
+            : null,
+          raw.includes("401") || raw.includes("Unauthorized")
+            ? "鉴权:anon key 无效,检查 Secrets"
+            : null,
+          raw.includes("403") || raw.includes("Forbidden")
+            ? "权限:Storage RLS 不允许 anon 上传,跑 supabase/storage.sql"
+            : null,
+          raw.includes("413") || raw.includes("Payload Too Large")
+            ? "文件超过 20MB"
+            : null,
+        ].filter(Boolean),
+      });
+      toast.error("上传失败:" + raw, { duration: 6000 });
     } finally {
       setUploading(false);
       setPending(false);

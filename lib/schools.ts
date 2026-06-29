@@ -11,26 +11,26 @@ export const SCHOOLS_BY_PROVINCE: Record<string, string[]> = {
 export const PROVINCES = Object.keys(SCHOOLS_BY_PROVINCE);
 
 // 给 7 所学校分配稳定的调色板(用于日历事件 / 卡片着色)
-// 选 500 系列作背景 + 白字,在月日历上对比度高、易区分
+// 降饱和方案:300 系列作背景 + 800 系列文字 + 200 系列边,更柔和专业
 export const SCHOOL_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  "双柏一中":         { bg: "bg-rose-500",     border: "border-rose-700",     text: "text-white" },
-  "妥甸中学":         { bg: "bg-violet-500",   border: "border-violet-700",   text: "text-white" },
-  "隆德二中":         { bg: "bg-amber-500",    border: "border-amber-700",    text: "text-white" },
-  "泾源高中":         { bg: "bg-orange-500",   border: "border-orange-700",   text: "text-white" },
-  "红湖中学":         { bg: "bg-emerald-500",  border: "border-emerald-700",  text: "text-white" },
-  "平坝一中":         { bg: "bg-indigo-500",   border: "border-indigo-700",   text: "text-white" },
-  "官渡口镇初级中学": { bg: "bg-sky-500",      border: "border-sky-700",      text: "text-white" },
+  "双柏一中":         { bg: "bg-rose-300",     border: "border-rose-400",     text: "text-rose-900" },
+  "妥甸中学":         { bg: "bg-violet-300",   border: "border-violet-400",   text: "text-violet-900" },
+  "隆德二中":         { bg: "bg-amber-300",    border: "border-amber-400",    text: "text-amber-900" },
+  "泾源高中":         { bg: "bg-orange-300",   border: "border-orange-400",   text: "text-orange-900" },
+  "红湖中学":         { bg: "bg-emerald-300",  border: "border-emerald-400",  text: "text-emerald-900" },
+  "平坝一中":         { bg: "bg-indigo-300",   border: "border-indigo-400",   text: "text-indigo-900" },
+  "官渡口镇初级中学": { bg: "bg-sky-300",      border: "border-sky-400",      text: "text-sky-900" },
 };
 
-// 浅色版用于小 chip / card(白色背景上仍可读)
+// 更浅的版本(100 系)用于小 chip / card / 浅底场景
 export const SCHOOL_COLORS_LIGHT: Record<string, { bg: string; border: string; text: string }> = {
-  "双柏一中":         { bg: "bg-rose-100",     border: "border-rose-300",     text: "text-rose-900" },
-  "妥甸中学":         { bg: "bg-violet-100",   border: "border-violet-300",   text: "text-violet-900" },
-  "隆德二中":         { bg: "bg-amber-100",    border: "border-amber-300",    text: "text-amber-900" },
-  "泾源高中":         { bg: "bg-orange-100",   border: "border-orange-300",   text: "text-orange-900" },
-  "红湖中学":         { bg: "bg-emerald-100",  border: "border-emerald-300",  text: "text-emerald-900" },
-  "平坝一中":         { bg: "bg-indigo-100",   border: "border-indigo-300",   text: "text-indigo-900" },
-  "官渡口镇初级中学": { bg: "bg-sky-100",      border: "border-sky-300",      text: "text-sky-900" },
+  "双柏一中":         { bg: "bg-rose-100",     border: "border-rose-200",     text: "text-rose-800" },
+  "妥甸中学":         { bg: "bg-violet-100",   border: "border-violet-200",   text: "text-violet-800" },
+  "隆德二中":         { bg: "bg-amber-100",    border: "border-amber-200",    text: "text-amber-800" },
+  "泾源高中":         { bg: "bg-orange-100",   border: "border-orange-200",   text: "text-orange-800" },
+  "红湖中学":         { bg: "bg-emerald-100",  border: "border-emerald-200",  text: "text-emerald-800" },
+  "平坝一中":         { bg: "bg-indigo-100",   border: "border-indigo-200",   text: "text-indigo-800" },
+  "官渡口镇初级中学": { bg: "bg-sky-100",      border: "border-sky-200",      text: "text-sky-800" },
 };
 
 // 给省份分配一个摘要色(用于仪表盘省份 chip)
