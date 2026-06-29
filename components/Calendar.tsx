@@ -65,7 +65,7 @@ export function Calendar({
   defaultView = "month",
 }: {
   activities: ActivityView[];
-  defaultView?: "month" | "agenda";
+  defaultView?: "month";
 }) {
   const router = useRouter();
   const [localizer, setLocalizer] = React.useState<unknown>(null);
@@ -123,7 +123,7 @@ export function Calendar({
         startAccessor="start"
         endAccessor="end"
         defaultView={defaultView}
-        views={["month", "agenda"]}
+        views={["month"]}
         popup={true}
         onSelectEvent={(e: CalendarEvent) => router.push(`/activities/detail/?id=${e.id}`)}
         eventPropGetter={eventPropGetter}
@@ -132,7 +132,6 @@ export function Calendar({
           previous: "‹",
           next: "›",
           month: "月",
-          agenda: "列表",
           date: "日期",
           time: "时间",
           event: "活动",
