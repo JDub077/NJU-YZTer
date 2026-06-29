@@ -1,14 +1,24 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { zhCN } from "date-fns/locale/zh-CN";
 import { useRouter } from "next/navigation";
-import { isAllDay } from "@/lib/format";
+import { fmtTime, isAllDay } from "@/lib/format";
 import { schoolBgStyle } from "@/lib/schools";
 import type { ActivityView } from "@/lib/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 // ⚠️ react-big-calendar 默认 .rbc-event 不设 background,但它的样式表加载
 // 顺序可能让 Tailwind 的 className 被覆盖。用 inline style 直接给 hex 色,
@@ -98,6 +108,25 @@ export function Calendar({
     };
   }
 
+  // 点击月历日期头 → 弹窗显示当天活动
+  const [dialogDate, setDialogDate] = React.useState<Date | null>(null);
+  const dialogEvents = React.useMemo(() => {
+    if (!dialogDate) return [];
+    const y = dialogDate.getFullYear();
+    const m = dialogDate.getMonth();
+    const d = dialogDate.getDate();
+    return events
+      .filter((e) => {
+        const s = e.start;
+        return (
+          s.getFullYear() === y &&
+          s.getMonth() === m &&
+          s.getDate() === d
+        );
+      })
+      .sort((a, b) => a.start.getTime() - b.start.getTime());
+  }, [dialogDate, events]);
+
   if (!localizer) {
     return <div className="h-[520px] animate-pulse rounded-md bg-muted" />;
   }
@@ -108,30 +137,114 @@ export function Calendar({
   >;
 
   return (
-    <div className="h-[calc(100vh-220px)] min-h-[520px]">
-      <Cal
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        defaultView={defaultView}
-        views={["month"]}
-        popup={true}
-        onSelectEvent={(e: CalendarEvent) => router.push(`/activities/detail/?id=${e.id}`)}
-        eventPropGetter={eventPropGetter}
-        messages={{
-          today: "今天",
-          previous: "‹",
-          next: "›",
-          month: "月",
-          date: "日期",
-          time: "时间",
-          event: "活动",
-          allDay: "全天",
-          noEventsInRange: "此范围内暂无活动",
-          showMore: (n: number) => `+ ${n} 个`,
-        }}
+    <>
+      <div className="h-[820px]">
+        <Cal
+          localizer={localizer}
+          events={events}
+          startAccessor="start"
+          endAccessor="end"
+          defaultView={defaultView}
+          views={["month"]}
+          popup={true}
+          onSelectEvent={(e: CalendarEvent) => router.push(`/activities/detail/?id=${e.id}`)}
+          onDrillDown={(d: Date) => setDialogDate(d)}
+          eventPropGetter={eventPropGetter}
+          messages={{
+            today: "今天",
+            previous: "‹",
+            next: "›",
+            month: "月",
+            date: "日期",
+            time: "时间",
+            event: "活动",
+            allDay: "全天",
+            noEventsInRange: "此范围内暂无活动",
+            showMore: (n: number) => `+ ${n} 个`,
+          }}
+        />
+      </div>
+
+      <DayEventsDialog
+        date={dialogDate}
+        events={dialogEvents}
+        onOpenChange={(open) => !open && setDialogDate(null)}
       />
-    </div>
+    </>
   );
+}
+
+function DayEventsDialog({
+  date,
+  events,
+  onOpenChange,
+}: {
+  date: Date | null;
+  events: CalendarEvent[];
+  onOpenChange: (open: boolean) => void;
+}) {
+  return (
+    <Dialog open={date !== null} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
+            {date && fmtDayTitle(date)} 的活动
+          </DialogTitle>
+          <DialogDescription>
+            共 {events.length} 场活动
+          </DialogDescription>
+        </DialogHeader>
+        {events.length === 0 ? (
+          <div className="rounded-md border border-dashed bg-muted/30 px-4 py-8 text-center text-sm text-muted-foreground">
+            当天暂无活动
+          </div>
+        ) : (
+          <div className="max-h-[60vh] space-y-2 overflow-y-auto pr-1">
+            {events.map((e) => (
+              <Link
+                key={e.id}
+                href={`/activities/detail/?id=${e.id}`}
+                className="flex items-start gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent/40"
+              >
+                <span
+                  className="mt-1 h-3 w-3 shrink-0 rounded-sm"
+                  style={{
+                    backgroundColor: schoolBgStyle(
+                      e.resource.primary_school.name
+                    ).backgroundColor,
+                  }}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-medium">{e.title}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {e.resource.primary_school.province} ·{" "}
+                    {e.resource.primary_school.name}
+                    {e.resource.is_collaborative &&
+                      e.resource.collaborators.length > 0 && (
+                        <> · +{e.resource.collaborators.length} 协同</>
+                      )}
+                  </div>
+                </div>
+                <div className="shrink-0 text-xs text-muted-foreground">
+                  {fmtTime(e.start.toISOString())}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            关闭
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function fmtDayTitle(d: Date): string {
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  const week = ["日", "一", "二", "三", "四", "五", "六"][d.getDay()];
+  return `${m} 月 ${day} 日 (周${week})`;
 }

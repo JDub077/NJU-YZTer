@@ -135,7 +135,10 @@ body {
 
 /* 月视图日期单元格 */
 .rbc-month-row {
-  min-height: 120px;
+  min-height: 110px;
+}
+.rbc-month-row:last-child {
+  border-bottom: 1px solid oklch(0.94 0.03 80);
 }
 .rbc-row-content {
   padding: 2px 4px;
