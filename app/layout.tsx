@@ -16,8 +16,11 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <body className="min-h-full bg-background text-foreground">
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
+        {/* 移动端保留顶部导航(侧栏 md 以下隐藏),桌面端改用侧栏 */}
+        <div className="md:hidden">
+          <SiteHeader />
+        </div>
+        {children}
         <Toaster richColors position="top-center" />
       </body>
     </html>

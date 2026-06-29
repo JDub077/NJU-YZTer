@@ -5,10 +5,16 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ActivityCard } from "@/components/ActivityCard";
 import { EmptyState } from "@/components/EmptyState";
+import { Sidebar } from "@/components/Sidebar";
+import {
+  applyFilter,
+  type FilterState,
+} from "@/components/FilterChips";
 import { fetchActivities, fetchSchools } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { fmtPct } from "@/lib/format";
 import { isActivityComplete, completionRatio } from "@/lib/status";
+import { matchesStage, type StageFilter } from "@/lib/stages";
 import { provinceColor, schoolColor } from "@/lib/schools";
 import { cn } from "@/lib/utils";
 import type { Activity, ActivityView, School } from "@/lib/types";
@@ -28,6 +34,11 @@ export default function DashboardPage() {
   const [activities, setActivities] = React.useState<Activity[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [filter, setFilter] = React.useState<FilterState>({
+    provinces: [],
+    schoolIds: [],
+  });
+  const [stage, setStage] = React.useState<StageFilter>("all");
 
   React.useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -53,10 +64,34 @@ export default function DashboardPage() {
     };
   }, []);
 
+  const filtered = React.useMemo(() => {
+    const map = new Map(schools.map((s) => [s.id, s]));
+    const viewsAll: ActivityView[] = activities.map((a) => {
+      const ps = map.get(a.primary_school_id);
+      return {
+        ...a,
+        primary_school: ps ?? {
+          id: a.primary_school_id,
+          name: "(未知)",
+          province: "",
+          location: "",
+          created_at: "",
+        },
+        collaborators: [],
+        proposals_count: 0,
+        latest_proposal: null,
+      };
+    });
+    return applyFilter(viewsAll, schools, filter).filter((a) =>
+      matchesStage(a, stage)
+    );
+  }, [activities, schools, filter, stage]);
+
   const stats = React.useMemo<SchoolStat[]>(() => {
-    const schoolMap = new Map(schools.map((s) => [s.id, s]));
     const cutoff = Date.now() - 90 * 86400_000;
-    const recent = activities.filter((a) => new Date(a.starts_at).getTime() >= cutoff);
+    const recent = filtered.filter(
+      (a) => new Date(a.starts_at).getTime() >= cutoff
+    );
 
     return schools.map((s) => {
       const list = recent.filter((a) => a.primary_school_id === s.id);
@@ -83,7 +118,7 @@ export default function DashboardPage() {
         completion: avg,
       };
     });
-  }, [schools, activities]);
+  }, [schools, filtered]);
 
   const overall = React.useMemo(() => {
     const total = stats.reduce((a, s) => a + s.total, 0);
@@ -110,36 +145,37 @@ export default function DashboardPage() {
   }, [stats]);
 
   const recent: ActivityView[] = React.useMemo(() => {
-    const map = new Map(schools.map((s) => [s.id, s]));
-    return [...activities]
+    return [...filtered]
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 6)
       .map((a) => {
-        const ps = map.get(a.primary_school_id);
         return {
           ...a,
-          primary_school: ps ?? {
-            id: a.primary_school_id,
-            name: "(未知)",
-            province: "",
-            location: "",
-            created_at: "",
-          },
           collaborators: [],
           proposals_count: 0,
           latest_proposal: null,
         };
       });
-  }, [activities, schools]);
+  }, [filtered]);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 px-4 py-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">完成度仪表盘</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          近 90 天活动 · 各校 / 省份完成情况 · 最近新建
-        </p>
-      </header>
+    <div className="flex min-h-screen">
+      <Sidebar
+        schools={schools}
+        filter={filter}
+        onFilterChange={setFilter}
+        stage={stage}
+        onStageChange={setStage}
+      />
+
+      <main className="flex-1 overflow-x-hidden">
+        <div className="mx-auto max-w-7xl space-y-6 px-6 py-6">
+          <header>
+            <h1 className="text-2xl font-semibold tracking-tight">完成度仪表盘</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              近 90 天活动 · 各校 / 省份完成情况 · 最近新建
+            </p>
+          </header>
 
       {error && (
         <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -254,6 +290,8 @@ export default function DashboardPage() {
           </section>
         </>
       )}
+        </div>
+      </main>
     </div>
   );
 }
